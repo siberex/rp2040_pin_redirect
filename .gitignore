@@ -1,3 +1,4 @@
+# CMake
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -10,3 +11,14 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
+cmake-*
+
+# Build artifacts
+build
+build-*
+
+# clangd
+.cache/
+
+# GDB
+.gdb_history
