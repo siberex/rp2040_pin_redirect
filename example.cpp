@@ -6,6 +6,7 @@
  */
 
 #include <cassert>
+#include <iostream>
 
 // Pico SDK
 #include "pico/stdlib.h"
@@ -14,7 +15,9 @@
 // gpio_redirect generated header
 #include "redirect.pio.h"
 
+
 #define ASSERT(exp, msg) assert((void(msg), exp))
+
 
 namespace config {
     struct pioMap_t {
@@ -25,7 +28,20 @@ namespace config {
     inline const pioMap_t           g_pio_Redirect          = {pio1, 0};
 } // config
 
+
+void handleTerminate() {
+    std::cerr << "Execution terminated" << std::endl;
+    stdio_deinit_all();
+}
+
 [[noreturn]] int main() {
+    std::set_terminate(handleTerminate);
+    std::ostream::sync_with_stdio(false);
+
+    // Enable stdio drivers (UART/RTT/USB serial)
+    // Toggle appropriate pico_enable_stdio_*() in CMakeLists.txt
+    stdio_init_all();
+
     // Initialize PIO to redirect any input from GPIO 0 to GPIO 1
     constexpr uint pin_RedirectFrom = 0;
     constexpr uint pin_RedirectTo = 1;

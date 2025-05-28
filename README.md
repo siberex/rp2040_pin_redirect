@@ -36,7 +36,7 @@ In your code:
 // gpio_redirect generated header
 #include "redirect.pio.h"
 
-[[noreturn]] int main() {
+int main() {
     // Initialize PIO to redirect any input from GPIO 0 to GPIO 1
     constexpr uint pin_RedirectFrom = 0;
     constexpr uint pin_RedirectTo = 1;
