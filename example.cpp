@@ -5,6 +5,7 @@
  * Created: 28 May 2025
  */
 
+#undef NDEBUG
 #include <cassert>
 #include <iostream>
 
@@ -48,8 +49,8 @@ void handleTerminate() {
     stdio_init_all();
 
     // Initialize PIO to redirect any input from GPIO 0 to GPIO 1
-    constexpr unsigned int pin_RedirectFrom = 0;
-    constexpr unsigned int pin_RedirectTo   = 1;
+    constexpr unsigned int pin_RedirectFrom     = 0;
+    constexpr unsigned int pin_RedirectTo       = 1;
     const int offset = pio_add_program(config::g_pio_Redirect.pio, &gpio_redirect_program);
     ASSERT(offset >= 0, "Error mapping PIO bank for gpio_redirect program");
     gpio_redirect_program_init(
@@ -57,13 +58,12 @@ void handleTerminate() {
         config::g_pio_Redirect.sm,
         offset,
         pin_RedirectFrom,
-        pin_RedirectTo
-    );
+        pin_RedirectTo);
 
     // Optional part, just for the sake of comparison:
     // Initialize naive PIO to redirect any input from GPIO 0 to GPIO 2
     // PIO state machines can share input pins. But only same-bank SMs can share output pins
-    constexpr unsigned int pin_RedirectBasicTo   = 2;
+    constexpr unsigned int pin_RedirectBasicTo  = 2;
     const int offsetBasic = pio_add_program(config::g_pio_RedirectBasic.pio, &gpio_redirect_basic_program);
     ASSERT(offsetBasic >= 0, "Error mapping PIO bank for gpio_redirect_basic program");
     gpio_redirect_basic_program_init(
@@ -71,13 +71,32 @@ void handleTerminate() {
         config::g_pio_RedirectBasic.sm,
         offsetBasic,
         pin_RedirectFrom, // same input pin
-        pin_RedirectBasicTo
-    );
+        pin_RedirectBasicTo);
+
+    constexpr unsigned int pin_SquarewaveFast   = 3;
+    constexpr unsigned int pin_SquarewaveSlow   = 4;
+    constexpr float squarewaveSlowDivider       = 64.0f;
+    const int offsetSquarewave = pio_add_program(config::g_pio_Squarewave.pio, &squarewave_program);
+    ASSERT(offsetSquarewave >= 0, "Error mapping PIO bank for squarewave program");
+    const int offsetSquarewaveSlow = pio_add_program(config::g_pio_SquarewaveSlow.pio, &squarewave_program);
+    ASSERT(offsetSquarewaveSlow >= 0, "Error mapping PIO bank for squarewave program");
+    squarewave_program_init(
+        config::g_pio_Squarewave.pio,
+        config::g_pio_Squarewave.sm,
+        offsetSquarewave,
+        pin_SquarewaveFast,
+        1.0f);
+    squarewave_program_init(
+        config::g_pio_SquarewaveSlow.pio,
+        config::g_pio_SquarewaveSlow.sm,
+        offsetSquarewaveSlow,
+        pin_SquarewaveSlow,
+        squarewaveSlowDivider);
 
     sleep_ms(1000);
-    std::cout << "GPIO redirect initialized" << std::endl;
-    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectTo << " (side-set)" << std::endl;
-    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectBasicTo << " (basic)" << std::endl;
+    std::cout << "GPIO redirect initialized\n";
+    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectTo << " (side-set)\n";
+    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectBasicTo << " (basic)\n";
     const uint clk_sys_measured = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS) * 1000;
     std::cout << "CLK_SYS=" << clk_sys_measured << std::endl;
 

@@ -61,6 +61,15 @@ target_compile_definitions(${PROJECT} PRIVATE
         SYS_CLK_HZ=48000000
 )
 
+# Targeting CLK_SYS=200 MHz
+#target_compile_definitions(${PROJECT} PRIVATE
+#        PLL_SYS_REFDIV=1
+#        PLL_SYS_VCO_FREQ_HZ=1200000000
+#        PLL_SYS_POSTDIV1=6
+#        PLL_SYS_POSTDIV2=1
+#        SYS_CLK_HZ=200000000
+#)
+
 target_compile_options(${PROJECT} PRIVATE
         -Wall
         -Wextra

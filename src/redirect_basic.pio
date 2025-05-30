@@ -1,11 +1,11 @@
 ; Redirect one pin input to some other pin output.
 
-.pio_version 0 // Does not require PIO version 1 (RP2350)
+.pio_version 0 ; Does not require PIO version 1 (RP2350)
 .program gpio_redirect_basic
 
 .wrap_target
-    in pins, 1          ; Intake 1 bit from the input-mapped pin(s) and put it to the ISR
-    mov pins, isr       ; Move data from the ISR to the output-mapped pin(s)
+    in pins, 1          ; Intake 1 bit from the input-mapped pin and put it to the ISR
+    mov pins, isr       ; Move data from the ISR[0] to the output-mapped pin
 .wrap   ; This is a free (0-cycle) unconditional jump.
         ; Note: wrap registers are set up by program_get_default_config()
 
@@ -21,6 +21,10 @@ void gpio_redirect_basic_program_init(PIO pio, uint sm, uint offset, uint in_pin
     pio_gpio_init(pio, in_pin);
     sm_config_set_in_pins(&cfg, in_pin);
     pio_sm_set_consecutive_pindirs(pio, sm, in_pin, 1, false); // Set as input
+    // To protect PIO from metastabilities, each GPIO input is equipped with a standard 2-flipflop synchroniser.
+    // This adds two cycles of latency to input sampling.
+    // Bypass input synchroniser to reduce input delay:
+    hw_set_bits(&pio->input_sync_bypass, 1u << in_pin);
 
     // --- Output Pin Configuration ---
     pio_gpio_init(pio, out_pin);

@@ -50,9 +50,13 @@ void gpio_redirect_program_init(PIO pio, uint sm, uint offset, uint in_pin, uint
     pio_gpio_init(pio, in_pin);
     sm_config_set_in_pins(&cfg, in_pin);
     pio_sm_set_consecutive_pindirs(pio, sm, in_pin, 1, false); // Set as input
+    // To protect PIO from metastabilities, each GPIO input is equipped with a standard 2-flipflop synchroniser.
+    // This adds two cycles of latency to input sampling.
+    // Bypass input synchroniser to reduce input delay:
+    hw_set_bits(&pio->input_sync_bypass, 1u << in_pin);
     // --- Output Pin Configuration ---
     pio_gpio_init(pio, out_pin);
-    sm_config_set_sideset_pins(&cfg, out_pin);
+    sm_config_set_sideset_pins(&cfg, out_pin); // "Sideset" mapping
     pio_sm_set_consecutive_pindirs(pio, sm, out_pin, 1, true); // Set as output
     // Set clock divider
     sm_config_set_clkdiv(&cfg, 1.0f); // Full speed
