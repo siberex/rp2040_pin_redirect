@@ -1,0 +1,42 @@
+; https://github.com/raspberrypi/pico-examples/tree/master/pio/squarewave
+;
+; Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+;
+; SPDX-License-Identifier: BSD-3-Clause
+;
+
+.pio_version 0 ; Does not require PIO version 1 (RP2350)
+.program squarewave
+
+set pindirs, 1      ; Set pin to output
+
+.wrap_target
+	set pins, 1     ; Drive pin high
+	set pins, 0     ; Drive pin low
+.wrap
+
+
+% c-sdk {
+#include "hardware/clocks.h"
+
+// Function to initialize and run the PIO program
+void squarewave_program_init(PIO pio, uint sm, uint offset, uint out_pin, float clock_div) {
+    // Configure the PIO state machine
+    pio_sm_config cfg = squarewave_program_get_default_config(offset);
+
+    // --- Output Pin Configuration ---
+    pio_gpio_init(pio, out_pin);
+    sm_config_set_set_pins(&cfg, out_pin, 1); // "Set" mapping
+    pio_sm_set_consecutive_pindirs(pio, sm, out_pin, 1, true); // Set as output
+
+    // Set clock divider
+    sm_config_set_clkdiv(&cfg, clock_div);
+
+    // --- Load and Run ---
+    // Load the program into the PIO's instruction memory
+    pio_sm_init(pio, sm, offset, &cfg);
+    // Enable the PIO state machine
+    pio_sm_set_enabled(pio, sm, true);
+}
+
+%}

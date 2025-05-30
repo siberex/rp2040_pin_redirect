@@ -18,6 +18,7 @@
 // gpio_redirect generated header
 #include "redirect.pio.h"
 #include "redirect_basic.pio.h"
+#include "squarewave.pio.h"
 
 
 #define ASSERT(exp, msg) assert((void(msg), exp))
@@ -32,6 +33,8 @@ namespace config {
     inline const pioMap_t           g_pio_Redirect          = {pio1, 0};
     // Alternative output on the different PIO bank (just for the sake of example)
     inline const pioMap_t           g_pio_RedirectBasic     = {pio0, 1};
+    inline const pioMap_t           g_pio_Squarewave        = {pio0, 2};
+    inline const pioMap_t           g_pio_SquarewaveSlow    = {pio0, 3};
 } // config
 
 
@@ -99,6 +102,9 @@ void handleTerminate() {
     std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectBasicTo << " (basic)\n";
     const uint clk_sys_measured = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS) * 1000;
     std::cout << "CLK_SYS=" << clk_sys_measured << std::endl;
+
+    std::cout << "pin" << pin_SquarewaveFast << ": sq wave /1\n";
+    std::cout << "pin" << pin_SquarewaveSlow << ": sq wave /" << squarewaveSlowDivider << std::endl;
 
     while (true) {
         tight_loop_contents();
