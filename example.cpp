@@ -66,7 +66,7 @@ void handleTerminate() {
     constexpr unsigned int pin_RedirectBasicTo   = 2;
     const int offsetBasic = pio_add_program(config::g_pio_RedirectBasic.pio, &gpio_redirect_basic_program);
     ASSERT(offsetBasic >= 0, "Error mapping PIO bank for gpio_redirect_basic program");
-    gpio_redirect_program_init(
+    gpio_redirect_basic_program_init(
         config::g_pio_RedirectBasic.pio,
         config::g_pio_RedirectBasic.sm,
         offsetBasic,

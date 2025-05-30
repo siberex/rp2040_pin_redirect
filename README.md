@@ -50,6 +50,8 @@ int main() {
 }
 ```
 
+Note: Hi-Z input will not change the output state (it will keep the last value, either 0 or 1).
+
 
 # Clock comparisons
 
@@ -78,7 +80,7 @@ int main() {
     // Different PIO bank just for the sake of example, state machine #1
     // PIO state machines can share input pins. But only same-bank SMs can share output pins
     const int offsetBasic = pio_add_program(pio0, &gpio_redirect_basic_program);
-    gpio_redirect_program_init(pio0, 1, offsetBasic, pin_RedirectFrom, pin_RedirectToBasic);
+    gpio_redirect_basic_program_init(pio1, 1, offsetBasic, pin_RedirectFrom, pin_RedirectToBasic);
     
     while (true) {
         tight_loop_contents();
