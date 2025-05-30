@@ -42,6 +42,25 @@ add_executable(${PROJECT}
         example.cpp
 )
 
+# Targeting CLK_SYS=18MHz
+# Note: USB will NOT work with that clock speed
+#target_compile_definitions(${PROJECT} PRIVATE
+#        PLL_SYS_REFDIV=2
+#        PLL_SYS_VCO_FREQ_HZ=882000000
+#        PLL_SYS_POSTDIV1=7
+#        PLL_SYS_POSTDIV2=7
+#        SYS_CLK_HZ=18000000
+#)
+
+# Targeting CLK_SYS=48MHz
+target_compile_definitions(${PROJECT} PRIVATE
+        PLL_SYS_REFDIV=1
+        PLL_SYS_VCO_FREQ_HZ=1440000000
+        PLL_SYS_POSTDIV1=6
+        PLL_SYS_POSTDIV2=5
+        SYS_CLK_HZ=48000000
+)
+
 target_compile_options(${PROJECT} PRIVATE
         -Wall
         -Wextra
@@ -56,7 +75,7 @@ pico_set_program_version(${PROJECT} "0.1")
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(${PROJECT} 0)
 # Note: USB serial console adds significant overhead (TinyUSB init and stuff)
-pico_enable_stdio_usb(${PROJECT} 0)
+pico_enable_stdio_usb(${PROJECT} 1)
 # See Segger RTT readme section on how to use RTT
 pico_enable_stdio_rtt(${PROJECT} 1)
 
@@ -72,7 +91,9 @@ target_include_directories(${PROJECT} PRIVATE
 target_link_libraries(${PROJECT}
         # Pico SDK
         pico_stdlib
+        pico_time
         hardware_pio
+        hardware_clocks
         # Vendored libs
         gpio_redirect
 )

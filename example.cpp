@@ -10,7 +10,9 @@
 
 // Pico SDK
 #include "pico/stdlib.h"
+#include "pico/time.h"
 #include "hardware/pio.h"
+#include "hardware/clocks.h"
 
 // gpio_redirect generated header
 #include "redirect.pio.h"
@@ -71,6 +73,13 @@ void handleTerminate() {
         pin_RedirectFrom, // same input pin
         pin_RedirectBasicTo
     );
+
+    sleep_ms(1000);
+    std::cout << "GPIO redirect initialized" << std::endl;
+    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectTo << " (side-set)" << std::endl;
+    std::cout << "pin" << pin_RedirectFrom << " -> pin" << pin_RedirectBasicTo << " (basic)" << std::endl;
+    const uint clk_sys_measured = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS) * 1000;
+    std::cout << "CLK_SYS=" << clk_sys_measured << std::endl;
 
     while (true) {
         tight_loop_contents();

@@ -61,6 +61,7 @@ With high-enough-resolution oscilloscope you can compare outputs on the native c
 
 With low-res scope you can reduce RP2040 system clock [using](https://github.com/raspberrypi/pico-examples/blob/84e8d489ca321a4be90ee49e36dc29e5c645da08/clocks/hello_48MHz/hello_48MHz.c#L49) `clock_configure()`. 
 
+See also: `python3 "$PICO_SDK_PATH/src/rp2_common/hardware_clocks/scripts/vcocalc.py" 18`
 
 ```c++
 #include "redirect.pio.h"
@@ -83,4 +84,15 @@ int main() {
         tight_loop_contents();
     }
 }
+```
+
+
+# Build example
+
+```bash
+mkdir -p build && cd build
+cmake -DPICO_BOARD=pico -DCMAKE_BUILD_TYPE=Release --fresh ..
+# cmake -DPICO_BOARD=pimoroni_tiny2350 -DCMAKE_BUILD_TYPE=Release --fresh ..
+make
+picotool load -f -x pin_redirect.uf2
 ```
