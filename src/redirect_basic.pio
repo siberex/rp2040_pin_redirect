@@ -1,16 +1,11 @@
 ; Redirect one pin input to some other pin output.
 
 .pio_version 0 // Does not require PIO version 1 (RP2350)
-.program gpio_redirect
-
-; Enable one pin as side-set (simultaneously reducing the available delay len, which we don't care about)
-; opt = retain last side-set value without the need to specify side x along with every instruction
-;       (also decreases available delay len, which we don't care about)
-.side_set 1 opt
+.program gpio_redirect_basic
 
 .wrap_target
-    wait 1 pin 0 side 0    ; Wait for input pin to go high, set output low
-    wait 0 pin 0 side 1    ; Wait for input pin to go low, set output high
+    in pins, 1          ; Intake 1 bit from the input-mapped pin(s) and put it to the ISR
+    mov pins, isr       ; Move data from the ISR to the output-mapped pin(s)
 .wrap   ; This is a free (0-cycle) unconditional jump.
         ; Note: wrap registers are set up by program_get_default_config()
 
@@ -18,9 +13,9 @@
 #include "hardware/clocks.h"
 
 // Function to initialize and run the PIO program
-void gpio_redirect_program_init(PIO pio, uint sm, uint offset, uint in_pin, uint out_pin) {
+void gpio_redirect_basic_program_init(PIO pio, uint sm, uint offset, uint in_pin, uint out_pin) {
     // Configure the PIO state machine
-    pio_sm_config cfg = gpio_redirect_program_get_default_config(offset);
+    pio_sm_config cfg = gpio_redirect_basic_program_get_default_config(offset);
 
     // --- Input Pin Configuration ---
     pio_gpio_init(pio, in_pin);
@@ -29,7 +24,7 @@ void gpio_redirect_program_init(PIO pio, uint sm, uint offset, uint in_pin, uint
 
     // --- Output Pin Configuration ---
     pio_gpio_init(pio, out_pin);
-    sm_config_set_sideset_pins(&cfg, out_pin);
+    sm_config_set_out_pins(&cfg, out_pin, 1);
     pio_sm_set_consecutive_pindirs(pio, sm, out_pin, 1, true); // Set as output
 
     // Set clock divider

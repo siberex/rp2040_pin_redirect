@@ -49,3 +49,38 @@ int main() {
     }
 }
 ```
+
+
+# Clock comparisons
+
+There is a [redirect_basic.pio](./src/redirect_basic.pio) implementation which uses the same clock count but without a side-set.
+
+You can run two state machines from the same input pin.
+
+With high-enough-resolution oscilloscope you can compare outputs on the native clock speed (200MHz for RP2040 with `PICO_USE_FASTEST_SUPPORTED_CLOCK=1`).
+
+With low-res scope you can reduce RP2040 system clock [using](https://github.com/raspberrypi/pico-examples/blob/84e8d489ca321a4be90ee49e36dc29e5c645da08/clocks/hello_48MHz/hello_48MHz.c#L49) `clock_configure()`. 
+
+
+```c++
+#include "redirect.pio.h"
+#include "redirect_basic.pio.h"
+int main() {
+    // Initialize PIO to redirect any input from GPIO 0 to GPIOs 1 and 2
+    constexpr unsigned int pin_RedirectFrom     = 0;
+    constexpr unsigned int pin_RedirectTo       = 1;
+    constexpr unsigned int pin_RedirectToBasic  = 2;
+    // Using state machine #3 in PIO bank #1
+    const int offset = pio_add_program(pio0, &gpio_redirect_program);
+    gpio_redirect_program_init(pio1, 3, offset, pin_RedirectFrom, pin_RedirectTo);
+    
+    // Different PIO bank just for the sake of example, state machine #1
+    // PIO state machines can share input pins. But only same-bank SMs can share output pins
+    const int offsetBasic = pio_add_program(pio0, &gpio_redirect_basic_program);
+    gpio_redirect_program_init(pio0, 1, offsetBasic, pin_RedirectFrom, pin_RedirectToBasic);
+    
+    while (true) {
+        tight_loop_contents();
+    }
+}
+```
