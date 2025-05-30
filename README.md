@@ -4,7 +4,7 @@ Redirect single GPIO pin with PIO.
 
 Should work without any additional setup on Pico/Pico2 boards and any other boards based on Raspberry RP2040 and RP2350 MCUs.
 
-Uses [side-set](https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf#page=332&zoom=100,153,745) output with minimal possible cycle count (will trigger as fast as the board is capable of).
+Uses `INPUT_SYNC_BYPASS` and [side-set](https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf#page=332&zoom=100,153,745) output with minimal possible cycle count (will trigger as fast as the board is capable of).
 
 
 # Usage
@@ -55,13 +55,15 @@ Note: Hi-Z input will not change the output state (it will keep the last value, 
 
 # Clock comparisons
 
-There is a [redirect_basic.pio](./src/redirect_basic.pio) implementation which uses the same clock count but without a side-set.
+There is alternative [redirect_basic.pio](./src/redirect_basic.pio) implementation which uses the same instruction count, but without a side-set.
 
 You can run two state machines from the same input pin.
 
 With high-enough-resolution oscilloscope you can compare outputs on the native clock speed (200MHz for RP2040 with `PICO_USE_FASTEST_SUPPORTED_CLOCK=1`).
 
 With low-res scope you can reduce RP2040 system clock [using](https://github.com/raspberrypi/pico-examples/blob/84e8d489ca321a4be90ee49e36dc29e5c645da08/clocks/hello_48MHz/hello_48MHz.c#L49) `clock_configure()`. 
+
+Check out [CMakeLists.txt](./CMakeLists.txt) for the example binary: it provides 18MHz, 48MHz and 200MHz system clock configurations.
 
 See also: `python3 "$PICO_SDK_PATH/src/rp2_common/hardware_clocks/scripts/vcocalc.py" 18`
 
@@ -96,5 +98,8 @@ mkdir -p build && cd build
 cmake -DPICO_BOARD=pico -DCMAKE_BUILD_TYPE=Release --fresh ..
 # cmake -DPICO_BOARD=pimoroni_tiny2350 -DCMAKE_BUILD_TYPE=Release --fresh ..
 make
-picotool load -f -x pin_redirect.uf2
+# Flash with openocd:
+make flash
+# Flash with picotool:
+make flash_usb
 ```
