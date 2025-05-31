@@ -112,8 +112,8 @@ pico_add_extra_outputs(${PROJECT})
 
 # "make flash" to flash the firmware with openocd (connect the board with SWD connector first)
 add_custom_target(flash
-        openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 10000" -c "program ${PROJECT}.elf verify reset exit"
-        COMMENT "openocd program verify reset"
+        openocd -f ${CMAKE_CURRENT_LIST_DIR}/openocd.cfg -c "program ${PROJECT}.elf verify reset exit"
+        COMMENT "openocd: program verify reset"
         DEPENDS ${PROJECT}
 )
 
@@ -121,8 +121,8 @@ add_custom_target(flash
 # Connect to serial console: telnet 127.0.0.1 9090
 # Connect with gdb (core0): gdb "${TARGET}.elf" -ex "target extended-remote localhost:3333"
 add_custom_target(gdb
-        openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 10000" -c "init; rtt setup 0x20000000 0x42000 \"SEGGER RTT\"; rtt start; rtt server start 9090 0"
-        COMMENT "openocd gdb servers with RTT"
+        openocd -f ${CMAKE_CURRENT_LIST_DIR}/openocd_gdb.cfg
+        COMMENT "openocd: GDB server with RTT"
         DEPENDS ${PROJECT}
 )
 
